@@ -1,0 +1,11 @@
+asyncpg~=0.25.0
+parsedatetime~=2.6
+done~=1.0.4
+python-dateutil~=2.8.2
+psutil~=5.9.0
+pygit2~=1.9.1
+aiohttp~=3.8.1
+click~=8.1.2
+colorlog~=6.6.0
+qq.py
+lxml~=4.8.0
