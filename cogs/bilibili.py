@@ -295,6 +295,10 @@ class Bilibili(commands.Cog):
         async with self._check_lock:
             await self._check_bili_dynamic()
 
+    @check_bili_dynamic_loop.before_loop
+    async def before_check_bili(self):
+        await self.bot.wait_until_ready()
+
     @commands.group(name='动态', invoke_without_command=True, hidden=True)
     @commands.is_owner()
     async def status(self, ctx: commands.Context):
