@@ -281,7 +281,7 @@ class Bilibili(commands.Cog):
                 elif self.room_states[uid] and content['data']['live_room']['liveStatus'] == 0:
                     self.room_states[uid] = False
                     msg = content['data']['name'] + '下播了'
-                    await self.broadcast(uid, msg, url)
+                    await self.broadcast(uid, msg, None)
                 await asyncio.sleep(0.5)
             except Exception as _:
                 log.warning(f'B站直播检查发生错误 uid={uid}\n' + traceback.format_exc())
