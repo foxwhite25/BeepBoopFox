@@ -9,3 +9,4 @@ click~=8.1.2
 colorlog~=6.6.0
 qq.py
 lxml~=4.8.0
+Pillow~=9.1.0
