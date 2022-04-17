@@ -42,4 +42,4 @@ postgresql = 'postgresql://user:password@host/database' # 你的 postgresql 信�
 
 6. **数据库配置**
 
-要配置 PostgreSQL 数据库供机器人使用，请 ``cd`` 到 ``auncher.py`` 所在的目录，然后通过执行 ``python3 launcher.py db init`` 运行脚本
+要配置 PostgreSQL 数据库供机器人使用，请 ``cd`` 到 ``launcher.py`` 所在的目录，然后通过执行 ``python3 launcher.py db init`` 运行脚本
