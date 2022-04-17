@@ -143,7 +143,7 @@ class Bilibili(commands.Cog):
                 if res is None:
                     log.warning(f'检查{uid}时出错 request response is None')
                     continue
-            cards = res['data']['cards']
+                cards = res['data']['cards']
             # cards=[res['data']['cards'][10]]
             uid_time = self.push_times.get(uid, 0)
             self.push_times[uid] = int(time.time())
@@ -275,7 +275,7 @@ class Bilibili(commands.Cog):
                     self.room_states[uid] = True
                     username = self.all_user_name[uid]
                     msg = username + '开播了：\n' + content['data']['live_room']['title'] + '\n' \
-                          + res['data']['live_room']['url']
+                          + content['data']['live_room']['url']
                     url = [content['data']['live_room']['cover']]
                     await self.broadcast(uid, msg, url)
                 elif self.room_states[uid] and content['data']['live_room']['liveStatus'] == 0:
@@ -302,7 +302,6 @@ class Bilibili(commands.Cog):
     @commands.group(name='动态', invoke_without_command=True, hidden=True)
     @commands.is_owner()
     async def status(self, ctx: commands.Context):
-        await self.load_all_username()
         msg = '当前订阅:'
         for uid, username in self.all_user_name.items():
             msg += f'\n{username} ({uid})'
@@ -322,12 +321,13 @@ class Bilibili(commands.Cog):
                 self.room_states[uid] = False
             else:
                 if str(ctx.channel.id) in self.push_uid[uid]:
-                    await ctx.reply(f'{uid} 订阅失败：请勿重复订阅')
+                    await ctx.reply(f'{self.all_user_name[uid]} ({uid}) 订阅失败：请勿重复订阅')
                     continue
                 self.push_uid[uid].append(str(ctx.channel.id))
             await self.load_username(uid)
             self.push_times[uid] = int(time.time())
-            await ctx.reply(f'{uid} 订阅成功')
+            await self.load_all_username()
+            await ctx.reply(f'{self.all_user_name[uid]} ({uid}) 订阅成功')
         await self.save_config()
 
     @status.command(name='取消', hidden=True)
@@ -346,7 +346,8 @@ class Bilibili(commands.Cog):
             else:
                 await ctx.reply(f'{uid} 取消订阅失败：未找到该订阅')
                 continue
-            await ctx.reply(f'{uid} 取消订阅成功')
+            await self.load_all_username()
+            await ctx.reply(f'{self.all_user_name[uid]} ({uid}) 取消订阅成功')
         await self.save_config()
 
 
