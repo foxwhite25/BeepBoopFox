@@ -46,6 +46,7 @@ class PixelWar(commands.Cog):
         self.pixels.fill(255)
 
     def cog_unload(self):
+        self.filled_in = False
         self.bulk_insert_loop.stop()
 
     @tasks.loop(seconds=10.0)
@@ -91,11 +92,13 @@ class PixelWar(commands.Cog):
     @commands.command(name="帮助")
     async def help(self, ctx: Context):
         await ctx.send(
-            "欢迎参加像素大战，看看你的社区能不能在这个地方占上一块地！\n"
-            "首先使用 /色轮 选择你喜欢的色号。"
-            "然后每个人每五分钟只能使用 '/画图 x y 色号' 画一个像素。\n"
-            "使用 '/看图 中心x 中心y 范围' 来观看附近有什么像素以及你的成果。\n"
-            "你还可以使用 '/查像素 x y' 来看看是哪个频道的混蛋覆盖了你的像素！\n\n"
+            "欢迎参加像素大战，看看你的社区能不能在这个地方占上一块地！\n\n"
+            "这个机器人的概念是一个社会实验，每个人每五分钟只能在一个全局画布上改变一个像素。\n"
+            "但是当一个频道集中力量可以很容易的创造一些图片或像素画，看看你的社区是否能够集中人员来画出一幅代表你频道的区域。\n\n"
+            "首先使用 /色轮 选择你喜欢的色号。\n"
+            "然后每个人每五分钟只能使用 '/画图 x y 色号' 画一个像素。\n例子： /画图 9 9 6\n\n"
+            "使用 '/看图 中心x 中心y 范围' 来观看附近有什么像素以及你的成果。\n例子： /看图 9 9 10\n\n"
+            "你还可以使用 '/查像素 x y' 来看看是哪个频道的混蛋覆盖了你的像素！\n例子： /查像素 9 9\n\n"
             f"目前最大范围为 ({self.max_x}, {self.max_y}) 如果之后位置不够用了还能够扩容。\n"
             f"本机器人使用 QQ.py 制作。"
         )
@@ -108,6 +111,7 @@ class PixelWar(commands.Cog):
     @commands.cooldown(rate=1, per=30, type=BucketType.user)
     @commands.command(name="看图")
     async def _view_canvas(self, ctx: Context, x: int, y: int, radius: Optional[int] = 10):
+        await ctx.send(f"正在生成图片，中心将会是 ({x},{y})：")
         await self.view_canvas(ctx, x, y, radius)
 
     async def view_canvas(self, ctx: Context, x: int, y: int, radius: Optional[int] = 10):
@@ -115,23 +119,27 @@ class PixelWar(commands.Cog):
             return await ctx.send("你这中心都超出最大范围了！")
         if radius > 100:
             return await ctx.send("范围太大了！")
-        x_max = min(self.max_x, x + radius)
+        x_max = min(self.max_x, x + radius + 1)
         x_min = max(0, x - radius)
-        y_max = min(self.max_y, y + radius)
+        y_max = min(self.max_y, y + radius + 1)
         y_min = max(0, y - radius)
-        size = 1 + radius * 2
+        size = (1 + radius * 2) * 20
+        half_size = size // 2
         img = self.pixels[y_min:y_max, x_min:x_max]
         img = numpy.pad(
             img,
             [
-                (max(0, radius - y - 1), max(0, y + radius - self.max_y - 1)),
-                (max(0, radius - x - 1), max(0, x + radius - self.max_x - 1)),
+                (max(0, radius - y), max(0, y + radius - self.max_y - 1)),
+                (max(0, radius - x), max(0, x + radius - self.max_x - 1)),
                 (0, 0)
             ],
             'constant', constant_values=(0, 0)
         )
 
-        img = cv2.resize(img, dsize=(size * 20, size * 20), interpolation=cv2.INTER_AREA)
+        img = cv2.resize(img, dsize=(size, size), interpolation=cv2.INTER_AREA)
+
+        img[half_size-5:half_size+5, half_size-5:half_size+5] = 255 - img[half_size, half_size]
+
         retval, buffer = cv2.imencode('.jpg', img, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
         file = qq.File(io.BytesIO(buffer.tobytes()))
         await ctx.send(file=file)
@@ -162,6 +170,8 @@ class PixelWar(commands.Cog):
         }
         await ctx.send(f"成功在 ({x},{y}) 画上色号 {color} !")
         await self.view_canvas(ctx, x, y)
+        await asyncio.sleep(300)
+        await ctx.send(f"{ctx.author.mention} 你的下一笔已经准备好了！")
 
     async def cog_command_error(self, ctx: Context, error: Exception):
         if isinstance(error, commands.CommandOnCooldown):

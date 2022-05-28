@@ -37,7 +37,7 @@ def setup_logging():
         # __enter__
         max_bytes = 32 * 1024 * 1024  # 32 MiB
         logging.getLogger('qq').setLevel(logging.INFO)
-        logging.getLogger('qq.http').setLevel(logging.DEBUG)
+        logging.getLogger('qq.http').setLevel(logging.INFO)
         logging.getLogger('qq.state').addFilter(RemoveNoise())
 
         log = logging.getLogger()
