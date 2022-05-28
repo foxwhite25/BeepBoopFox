@@ -83,7 +83,7 @@ class Stats(commands.Cog):
 
     @property
     def display_emoji(self) -> qq.PartialEmoji:
-        return qq.PartialEmoji(name='\N{BAR CHART}')
+        return qq.PartialEmoji.from_str('\N{BAR CHART}')
 
     async def bulk_insert(self):
         query = """INSERT INTO commands (guild_id, channel_id, author_id, used, prefix, command, failed)
@@ -580,7 +580,7 @@ class Stats(commands.Cog):
 
     async def send_guild_stats(self, e, guild):
         e.add_field(name='Name: ' + guild.name)
-        e.add_field(name='ID: ' + guild.id)
+        e.add_field(name='ID: ' + str(guild.id))
         e.add_field(name='Shard ID: ' + guild.shard_id or 'N/A')
         e.add_field(name='Owner: ' + f'{guild.owner} (ID: {guild.owner_id})')
 

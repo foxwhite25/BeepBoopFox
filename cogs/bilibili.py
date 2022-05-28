@@ -12,8 +12,6 @@ from PIL import Image
 from qq import TextChannel
 from qq.ext import commands, tasks
 
-from cogs.utils.image_upload import upload_to_jd
-
 log = logging.getLogger(__name__)
 
 
@@ -126,7 +124,6 @@ class Bilibili(commands.Cog):
         if not isinstance(image_data, str):
             # Python 3, decode from bytes to string
             image_data = image_data.decode()
-        await upload_to_jd(image_data)
 
     async def _check_bili_dynamic(self):
         log.debug('B站动态检查开始')
@@ -307,6 +304,7 @@ class Bilibili(commands.Cog):
             msg += f'\n{username} ({uid})'
         if not self.all_user_name:
             msg += '暂无'
+        await ctx.author.avatar.read()
         await ctx.reply(msg)
 
     @status.command(name='订阅', hidden=True)

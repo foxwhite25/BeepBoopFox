@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 
 import qq
+from asyncpg import Pool
 from qq.ext import commands
 
 
@@ -27,7 +28,7 @@ class _ContextDBAcquire:
 class Context(commands.Context):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.pool = self.bot.pool
+        self.pool: Pool = self.bot.pool
         self._db = None
 
     async def entry_to_code(self, entries):

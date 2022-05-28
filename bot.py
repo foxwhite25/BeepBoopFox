@@ -24,7 +24,7 @@ initial_extensions = (
     "cogs.admin",
     "cogs.stats",
     "cogs.meta",
-    "cogs.bilibili"
+    'cogs.pixel_war'
 )
 
 
@@ -40,14 +40,12 @@ def _prefix_callable(bot, msg):
 
 class BeepBoopFox(commands.AutoShardedBot):
     def __init__(self):
+        self.pool = None
         allowed_mentions = qq.AllowedMentions(roles=False, everyone=False, users=True)
         intents = qq.Intents(
             guilds=True,
             members=True,
-            messages=True,
-            at_guild_messages=False,
-            guild_reactions=True,
-            audit=True,
+            at_guild_messages=True,
         )
         super().__init__(
             command_prefix=_prefix_callable,
@@ -60,7 +58,6 @@ class BeepBoopFox(commands.AutoShardedBot):
             intents=intents,
             enable_debug_events=True,
             owner_id=2229785998145077655,
-            shard_count=2
         )
 
         self.bots_app_id = config.bots_app_id
@@ -76,6 +73,7 @@ class BeepBoopFox(commands.AutoShardedBot):
 
         # guild_id: list
         self.prefixes = Config('prefixes.json')
+        self.pixel = Config('pixels.json')
 
         # guild_id and user_id mapped to True
         # these are users and guilds globally blacklisted
@@ -302,9 +300,11 @@ class BeepBoopFox(commands.AutoShardedBot):
             # Just in case we have any outstanding DB connections
             await ctx.release()
 
-    async def on_message(self, message):
+    async def on_message(self, message: qq.Message):
+        logger.info(f"来自 {message.guild} 的 {message.author} 消息：{message.content}")
         if message.author.bot:
             return
+        message.content = message.content.replace(self.user.mention, '').strip()
         await self.process_commands(message)
 
     async def on_guild_join(self, guild):
