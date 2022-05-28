@@ -166,7 +166,7 @@ class PixelWar(commands.Cog):
     async def cog_command_error(self, ctx: Context, error: Exception):
         if isinstance(error, commands.CommandOnCooldown):
             return await ctx.send("当前指令在冷却中，请在%.0f秒后重试！现在先喝杯茶休息一下吧 ☕ 。" % error.retry_after)
-        if isinstance(error, commands.ConversionError):
+        if isinstance(error, commands.ConversionError) or isinstance(error, commands.UserInputError):
             return await ctx.send("参数有误，请使用 /帮助 并检查参数！")
 
     @commands.command(name="查像素")

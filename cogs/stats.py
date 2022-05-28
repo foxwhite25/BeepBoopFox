@@ -602,15 +602,15 @@ class Stats(commands.Cog):
     async def before_stats_invoke(self, ctx):
         await ctx.trigger_typing()
 
-    @commands.Cog.listener()
-    async def on_guild_join(self, guild):
-        e = qq.Embed(colour=0x53dda4, title='New Guild')  # green colour
-        await self.send_guild_stats(e, guild)
+    # @commands.Cog.listener()
+    # async def on_guild_join(self, guild):
+    #     e = qq.Embed(colour=0x53dda4, title='New Guild')  # green colour
+    #     await self.send_guild_stats(e, guild)
 
-    @commands.Cog.listener()
-    async def on_guild_remove(self, guild):
-        e = qq.Embed(colour=0xdd5f53, title='Left Guild')  # red colour
-        await self.send_guild_stats(e, guild)
+    # @commands.Cog.listener()
+    # async def on_guild_remove(self, guild):
+    #     e = qq.Embed(colour=0xdd5f53, title='Left Guild')  # red colour
+    #     await self.send_guild_stats(e, guild)
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):

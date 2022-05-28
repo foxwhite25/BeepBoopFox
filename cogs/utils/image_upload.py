@@ -10,10 +10,10 @@ logger = logging.getLogger(__name__)
 
 
 async def upload(image: BytesIO) -> str:
-    formdata = FormData()
-    formdata.add_field('fileupload', image, filename='test.png')
+    form_data = FormData()
+    form_data.add_field('fileupload', image, filename='test.png')
     async with aiohttp.ClientSession() as session:
-        async with session.post('http://pic.qingchengkg.cn/api/upload/', data=formdata) as response:
+        async with session.post('http://pic.qingchengkg.cn/api/upload/', data=form_data) as response:
             data = json.loads(await response.text())
             logger.debug('Image upload status %d with data %s', response.status, data)
             return data['url']
