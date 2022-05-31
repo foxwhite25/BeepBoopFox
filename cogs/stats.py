@@ -43,7 +43,7 @@ class Commands(db.Table):
 
     guild_id = db.Column(db.Numeric(precision=38, scale=0))
     channel_id = db.Column(db.Numeric(precision=38, scale=0))
-    author_id = db.Column(db.Integer(big=True), index=True)
+    author_id = db.Column(db.Numeric(precision=38, scale=0), index=True)
     used = db.Column(db.Datetime, index=True)
     prefix = db.Column(db.String)
     command = db.Column(db.String, index=True)
@@ -89,7 +89,7 @@ class Stats(commands.Cog):
         query = """INSERT INTO commands (guild_id, channel_id, author_id, used, prefix, command, failed)
                    SELECT x.guild, x.channel, x.author, x.used, x.prefix, x.command, x.failed
                    FROM jsonb_to_recordset($1::jsonb) AS
-                   x(guild DECIMAL(38,0), channel DECIMAL(38,0), author BIGINT, used TIMESTAMP, prefix TEXT, command TEXT, 
+                   x(guild DECIMAL(38,0), channel DECIMAL(38,0), author DECIMAL(38,0), used TIMESTAMP, prefix TEXT, command TEXT, 
                    failed BOOLEAN)
                 """
 
@@ -282,13 +282,7 @@ class Stats(commands.Cog):
         query = "SELECT COUNT(*), MIN(used) FROM commands WHERE guild_id=$1;"
         count = await ctx.db.fetchrow(query, ctx.guild.id)
 
-        embed.description = f'{count[0]} 使用的命令。'
-        if count[1]:
-            timestamp = count[1].replace(tzinfo=datetime.timezone.utc)
-        else:
-            timestamp = qq.utils.utcnow()
-
-        embed.set_footer(text='Tracking command usage since').timestamp = timestamp
+        embed.add_field(name=f'{count[0]} 使用的命令：\n')
 
         query = """SELECT command,
                           COUNT(*) as "uses"
@@ -304,7 +298,7 @@ class Stats(commands.Cog):
         value = '\n'.join(f'{lookup[index]}: {command} ({uses} 次使用)'
                           for (index, (command, uses)) in enumerate(records)) or '没有命令。'
 
-        embed.add_field(name='最强命令: \n' + value, inline=True)
+        embed.add_field(name='最强命令: \n' + value)
 
         query = """SELECT command,
                           COUNT(*) as "uses"
@@ -320,8 +314,7 @@ class Stats(commands.Cog):
 
         value = '\n'.join(f'{lookup[index]}: {command} ({uses} 次使用)'
                           for (index, (command, uses)) in enumerate(records)) or '没有命令。'
-        embed.add_field(name='今天的最强命令: \n' + value, inline=True)
-        embed.add_field(name='\u200b', value='\u200b', inline=True)
+        embed.add_field(name='今天的最强命令: \n' + value)
 
         query = """SELECT author_id,
                           COUNT(*) AS "uses"
@@ -337,7 +330,7 @@ class Stats(commands.Cog):
         value = '\n'.join(f'{lookup[index]}: <@!{author_id}> ({uses} 次使用)'
                           for (index, (author_id, uses)) in enumerate(records)) or '没有机器人使用者。'
 
-        embed.add_field(name='最强命令使用者: \n' + value, inline=True)
+        embed.add_field(name='最强命令使用者: \n' + value)
 
         query = """SELECT author_id,
                           COUNT(*) AS "uses"
@@ -354,7 +347,7 @@ class Stats(commands.Cog):
         value = '\n'.join(f'{lookup[index]}: <@!{author_id}> ({uses} 次使用)'
                           for (index, (author_id, uses)) in enumerate(records)) or '没有机器人使用者。'
 
-        embed.add_field(name='今天的最强命令使用者: \n' + value, inline=True)
+        embed.add_field(name='今天的最强命令使用者: \n' + value)
         await ctx.reply(embed=embed)
 
     async def show_member_stats(self, ctx, member):
@@ -374,12 +367,6 @@ class Stats(commands.Cog):
         count = await ctx.db.fetchrow(query, ctx.guild.id, member.id)
 
         embed.description = f'{count[0]} commands used.'
-        if count[1]:
-            timestamp = count[1].replace(tzinfo=datetime.timezone.utc)
-        else:
-            timestamp = qq.utils.utcnow()
-
-        embed.set_footer(text='First command used').timestamp = timestamp
 
         query = """SELECT command,
                           COUNT(*) as "uses"
@@ -634,7 +621,7 @@ class Stats(commands.Cog):
         e.add_field(name='Content: ' + textwrap.shorten(ctx.message.content, width=512))
 
         exc = ''.join(traceback.format_exception(type(error), error, error.__traceback__, chain=False))
-        e.description = f'```py\n{exc}\n```'
+        log.error(exc)
         e.timestamp = qq.utils.utcnow()
         await ctx.reply(embed=e)
 

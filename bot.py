@@ -301,7 +301,7 @@ class BeepBoopFox(commands.AutoShardedBot):
             await ctx.release()
 
     async def on_message(self, message: qq.Message):
-        logger.info(f"来自 {message.guild} 的 {message.author} 消息：{message.content}")
+        # logger.info(f"来自 {message.guild} 的 {message.author} 消息：{message.content}")
         if message.author.bot:
             return
         message.content = message.content.replace(self.user.mention, '').strip()

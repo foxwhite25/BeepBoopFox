@@ -1,6 +1,6 @@
-from enum import unique, Enum
+import numpy
 
-Colors = [
+Colors = numpy.uint8([
     (26, 0, 109),
     (57, 0, 190),
     (0, 69, 255),
@@ -33,4 +33,4 @@ Colors = [
     (144, 141, 137),
     (217, 215, 212),
     (255, 255, 255),
-]
+])
